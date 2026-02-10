@@ -2,34 +2,31 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"net"
-	"os"
-	"time"
 )
-
-func Copy(dst io.Writer, src io.Reader) {
-	if _, err := io.Copy(dst, src); err != nil {
-		return
-	}
-}
 
 func handConc(conec net.Conn) {
 	defer conec.Close()
-	fmt.Println("Server started")
+	fmt.Println("Client connceted;",&conec)
+	b := make([]byte, 1024)
 	for {
-		_, err := io.WriteString(conec, "----------\n")
+
+		n, err := conec.Read(b)
 		if err != nil {
+			fmt.Print(err)
 			return
 		}
-		Copy(os.Stdout, conec)
-		time.Sleep(time.Second)
+		msg := string(b[:n])
+		fmt.Println("client:", msg)
+		resp := "server repose:" + msg + "recived sucessfuly\n"
+		conec.Write([]byte(resp))
+		// time.Sleep(time.Second)
 	}
 }
 
 func main() {
 	fmt.Println("Server starting at port 8080")
-	listen, err := net.Listen("tcp", "loalhost:8080")
+	listen, err := net.Listen("tcp", "localhost:8080")
 	if err != nil {
 		return
 	}
