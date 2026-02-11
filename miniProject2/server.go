@@ -1,26 +1,63 @@
 package main
 
 import (
+	// "errors"
+	"bufio"
 	"fmt"
 	"net"
+	"os"
+	"strings"
 )
+
+func fileOpertions(command string, conn net.Conn) {
+	// buff:=make([]byte,1024)
+	splitCmd := strings.Fields(command)
+	opertion := splitCmd[0]
+	filename := splitCmd[1]
+	var str string
+	if opertion == "w" {
+		str = splitCmd[2]
+	} else {
+		str = ""
+	}
+
+	switch opertion {
+	case "r":
+		b, err := os.ReadFile(filename)
+		if err != nil {
+			fmt.Print("Error: ", err)
+			return
+		}
+		conn.Write(b)
+		return
+	case "w":
+		os.WriteFile(filename, []byte(str+"\n"), 0666)
+		resp := "wrie opertinon done\n"
+		conn.Write([]byte(resp))
+		return
+	default:
+		fmt.Println("Invalid file opertions")
+		return
+	}
+}
 
 func handConc(conec net.Conn) {
 	defer conec.Close()
-	fmt.Println("Client connceted;",&conec)
-	b := make([]byte, 1024)
+	fmt.Println("Client connceted;", &conec)
+	// b := make([]byte, 1024)
+	reader := bufio.NewReader(conec)
 	for {
-
-		n, err := conec.Read(b)
+		// n, err := conec.Read(b)
+		command, err := reader.ReadString('\n')
 		if err != nil {
 			fmt.Print(err)
+			conec.Close()
 			return
 		}
-		msg := string(b[:n])
-		fmt.Println("client:", msg)
-		resp := "server repose:" + msg + "recived sucessfuly\n"
-		conec.Write([]byte(resp))
-		// time.Sleep(time.Second)
+		msg := string(command)
+		fmt.Println("msg: ", msg)
+		fmt.Println("cmd: ")
+		fileOpertions(command, conec)
 	}
 }
 

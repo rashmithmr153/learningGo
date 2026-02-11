@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"net"
@@ -23,10 +24,16 @@ func main() {
 
 	defer conn.Close()
 	go copy(os.Stdout, conn)
+	fmt.Println("Read or write from files present in server")
+	fmt.Println("command format [opertion] [filename] [string]")
+	fmt.Println("[opertion]: r(for read), w(for write)")
+
 	for {
-		var sndStr string
-		fmt.Println("Enter some string:")
-		fmt.Scan(&sndStr)
-		conn.Write([]byte(sndStr + "\n"))
+		// var sndStr string
+		reader := bufio.NewReader(os.Stdin)
+		text, _ := reader.ReadString('\n')
+		fmt.Println("command format [opertion] [filename] [string]")
+		conn.Write([]byte(text))
+
 	}
 }
