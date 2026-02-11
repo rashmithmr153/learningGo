@@ -54,9 +54,6 @@ func handConc(conec net.Conn) {
 			conec.Close()
 			return
 		}
-		msg := string(command)
-		fmt.Println("msg: ", msg)
-		fmt.Println("cmd: ")
 		fileOpertions(command, conec)
 	}
 }
