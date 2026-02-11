@@ -31,17 +31,18 @@ func fileOpertions(command string, conn net.Conn) {
 		conn.Write(b)
 		return
 	case "w":
-		file,err:=os.OpenFile(filename,os.O_APPEND,0666)
+		file, err := os.OpenFile(filename, os.O_APPEND, 0666)
 		if err != nil {
 			fmt.Print(err)
 		}
-		file.WriteString(str+ "\n")
+		file.WriteString(str + "\n")
 		file.Close()
 		resp := "wrie opertinon done\n"
 		conn.Write([]byte(resp))
 		return
 	default:
-		fmt.Println("Invalid file opertions")
+		resp := "'"+string(opertion)+"' "+ "Invalid file opertions\n"
+		conn.Write([]byte(resp))
 		return
 	}
 }
