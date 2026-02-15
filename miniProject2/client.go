@@ -27,13 +27,19 @@ func main() {
 	fmt.Println("Read or write from files present in server")
 	fmt.Println("command format [opertion] [filename] [string]")
 	fmt.Println("[opertion]: r(for read), w(for write)")
+	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		// var sndStr string
-		reader := bufio.NewReader(os.Stdin)
-		text, _ := reader.ReadString('\n')
-		fmt.Println("command format [opertion] [filename] [string]")
-		conn.Write([]byte(text))
+		text, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("Input error:", err)
+			return
+		}
 
+		_, err = conn.Write([]byte(text))
+		if err != nil {
+			fmt.Println("Connection closed:", err)
+			return
+		}
 	}
 }

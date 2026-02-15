@@ -12,36 +12,46 @@ import (
 func fileOpertions(command string, conn net.Conn) {
 	// buff:=make([]byte,1024)
 	splitCmd := strings.Fields(command)
+	if len(splitCmd) < 2 {
+		b := []byte("Invalid command refer command format\n")
+		conn.Write(b)
+		return
+	}
 	opertion := splitCmd[0]
 	filename := splitCmd[1]
-	var str string
 	if opertion == "w" {
-		str = splitCmd[2]
-	} else {
-		str = ""
+		if len(splitCmd) < 3 {
+			b := []byte("Invalid command refer command format\n")
+			conn.Write(b)
+			return
+		}
 	}
+	str := strings.Join(splitCmd[2:], " ")
 
 	switch opertion {
 	case "r":
 		b, err := os.ReadFile(filename)
 		if err != nil {
-			fmt.Print("Error: ", err)
+			resp := []byte(err.Error() + "\n")
+			conn.Write(resp)
 			return
 		}
 		conn.Write(b)
 		return
 	case "w":
-		file, err := os.OpenFile(filename, os.O_APPEND, 0666)
+		file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, 0666)
 		if err != nil {
-			fmt.Print(err)
+			b := []byte(err.Error() + "\n")
+			conn.Write(b)
+			return
 		}
+		defer file.Close()
 		file.WriteString(str + "\n")
-		file.Close()
 		resp := "wrie opertinon done\n"
 		conn.Write([]byte(resp))
 		return
 	default:
-		resp := "'"+string(opertion)+"' "+ "Invalid file opertions\n"
+		resp := "'" + string(opertion) + "' " + "Invalid file opertions\n"
 		conn.Write([]byte(resp))
 		return
 	}
@@ -49,12 +59,13 @@ func fileOpertions(command string, conn net.Conn) {
 
 func handConc(conec net.Conn) {
 	defer conec.Close()
-	fmt.Println("Client connceted;", &conec)
+	fmt.Println("Client connceted;", conec.RemoteAddr())
 	// b := make([]byte, 1024)
 	reader := bufio.NewReader(conec)
 	for {
 		// n, err := conec.Read(b)
 		command, err := reader.ReadString('\n')
+		command = strings.TrimSpace(command)
 		if err != nil {
 			fmt.Print(err)
 			conec.Close()
