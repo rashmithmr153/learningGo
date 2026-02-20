@@ -92,6 +92,7 @@ func handlePlayer(game *Game, player *Player) {
 			game.Winner=player
 			game.lock.Unlock()
 			resp:="Yayy... your the winner\n"
+			conec.Write([]byte(resp))
 			return
 		}
 		resp:="No of bulls-->"+strconv.Itoa(bulls)+", cows-->"+strconv.Itoa(cows)+"\n"
