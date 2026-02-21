@@ -14,22 +14,22 @@ func main() {
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
-	for len(gameDetails.Players)<2 {
-		conn,err:=listen.Accept()
+	for len(gameDetails.Players) < 2 {
+		conn, err := listen.Accept()
 		if err != nil {
-			fmt.Println("Error: ",err.Error())
+			fmt.Println("Error: ", err.Error())
 		}
 		var playerDetails Player
-		playerDetails.conn=conn
-		playerDetails.guessCount=0
-		playerDetails.Id=len(gameDetails.Players)+1
-		playerDetails.isFinished=false
+		playerDetails.conn = conn
+		playerDetails.guessCount = 0
+		playerDetails.Id = len(gameDetails.Players) + 1
+		playerDetails.isFinished = false
 
-		gameDetails.Players = append(gameDetails.Players,playerDetails)
+		gameDetails.Players = append(gameDetails.Players, playerDetails)
 	}
-	gameDetails.secretNo=SectNumGenrator()
+	gameDetails.secretNo = SectNumGenrator()
 	fmt.Println(gameDetails.secretNo)
-	go handlePlayer(&gameDetails,&gameDetails.Players[0])
-	go handlePlayer(&gameDetails,&gameDetails.Players[1])
-	select{}
+	go handlePlayer(&gameDetails, &gameDetails.Players[0])
+	go handlePlayer(&gameDetails, &gameDetails.Players[1])
+	select {}
 }
