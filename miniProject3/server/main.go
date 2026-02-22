@@ -3,7 +3,26 @@ package main
 import (
 	"fmt"
 	"net"
+	"sync"
 )
+
+func checkWin(game *Game) {
+	p1 := &game.Players[0]
+	p2 := &game.Players[1]
+	defer p1.conn.Close()
+	defer p2.conn.Close()
+	switch game.Winner {
+	case p1:
+		p1.conn.Write([]byte("Yay...You Win!\n"))
+		p2.conn.Write([]byte("You Lose!.Better luck next time.\n"))
+	case p2:
+		p2.conn.Write([]byte("Yay...You Win!\n"))
+		p1.conn.Write([]byte("You Lose!.Better luck next time.\n"))
+	default:
+		p1.conn.Write([]byte("Draw,as both took same number of guesses\n"))
+		p2.conn.Write([]byte("Draw,as both took same number of guesses\n"))
+	}
+}
 
 func main() {
 	var gameDetails Game
@@ -23,13 +42,24 @@ func main() {
 		playerDetails.conn = conn
 		playerDetails.guessCount = 0
 		playerDetails.Id = len(gameDetails.Players) + 1
-		playerDetails.isFinished = false
-
 		gameDetails.Players = append(gameDetails.Players, playerDetails)
 	}
+	player1 := &gameDetails.Players[0]
+	player2 := &gameDetails.Players[1]
 	gameDetails.secretNo = SectNumGenrator()
-	fmt.Println(gameDetails.secretNo)
-	go handlePlayer(&gameDetails, &gameDetails.Players[0])
-	go handlePlayer(&gameDetails, &gameDetails.Players[1])
-	select {}
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		handlePlayer(&gameDetails, player1)
+	}()
+
+	go func() {
+		defer wg.Done()
+		handlePlayer(&gameDetails, player2)
+	}()
+
+	wg.Wait()
+	checkWin(&gameDetails)
 }

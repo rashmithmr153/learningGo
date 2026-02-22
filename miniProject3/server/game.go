@@ -21,19 +21,22 @@ type Player struct {
 	conn       net.Conn
 	Id         int
 	guessCount int
-	isFinished bool
 }
 
-type gameCondn int
+//this is used if font use shared state i.e game.Winner
+//type gameCondn int
 
+/*
 const (
+
 	invalid gameCondn = iota
 	win
 	lost
 	MaxAttempts
 	Disconnected
-)
 
+)
+*/
 func SectNumGenrator() string {
 	var secret string
 	for len(secret) < 4 {
@@ -76,14 +79,14 @@ func calcBullCows(secreatNo, guess string) (bull, cow int) {
 	return
 }
 
-func handlePlayer(game *Game, player *Player) gameCondn {
+func handlePlayer(game *Game, player *Player) {
 	conec := player.conn
 	reader := bufio.NewReader(conec)
 	for player.guessCount < 5 {
 		guess, err := reader.ReadString('\n')
 		if err != nil {
 			conec.Write([]byte(err.Error()))
-			return Disconnected
+			return
 		}
 		guess = strings.TrimSpace(guess)
 		if !validGuess(guess) {
@@ -94,7 +97,7 @@ func handlePlayer(game *Game, player *Player) gameCondn {
 		game.lock.Lock()
 		if game.isGameover {
 			game.lock.Unlock()
-			return lost
+			return
 		}
 		player.guessCount += 1
 		bulls, cows := calcBullCows(game.secretNo, guess)
@@ -102,11 +105,10 @@ func handlePlayer(game *Game, player *Player) gameCondn {
 			game.isGameover = true
 			game.Winner = player
 			game.lock.Unlock()
-			return win
+			return
 		}
 		resp := "No of bulls-->" + strconv.Itoa(bulls) + ", cows-->" + strconv.Itoa(cows) + "\n"
 		game.lock.Unlock()
 		conec.Write([]byte(resp))
 	}
-	return MaxAttempts
 }
