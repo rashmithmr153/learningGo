@@ -82,7 +82,7 @@ func calcBullCows(secreatNo, guess string) (bull, cow int) {
 func handlePlayer(game *Game, player *Player) {
 	conec := player.conn
 	reader := bufio.NewReader(conec)
-	for player.guessCount < 5 && !game.isGameover{
+	for player.guessCount < 5{
 		guess, err := reader.ReadString('\n')
 		if err != nil {
 			conec.Write([]byte(err.Error()))
