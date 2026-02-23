@@ -15,20 +15,20 @@ func checkWin(game *Game) {
 	case p1:
 		p1.conn.Write([]byte("Yay...You Win!\n"))
 		p2.conn.Write([]byte("You Lose!.Better luck next time.\n"))
+		return
 	case p2:
 		p2.conn.Write([]byte("Yay...You Win!\n"))
 		p1.conn.Write([]byte("You Lose!.Better luck next time.\n"))
+		return
 	default:
 		p1.conn.Write([]byte("Draw,as both took same number of guesses\n"))
 		p2.conn.Write([]byte("Draw,as both took same number of guesses\n"))
+		return
 	}
 }
 
 func main() {
 	var gameDetails Game
-	fmt.Println("___________________________________________________")
-	fmt.Println("*************Welcomr to bull-cow game**************")
-	fmt.Println("___________________________________________________")
 	listen, err := net.Listen("tcp", "localhost:8080")
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -43,10 +43,14 @@ func main() {
 		playerDetails.guessCount = 0
 		playerDetails.Id = len(gameDetails.Players) + 1
 		gameDetails.Players = append(gameDetails.Players, playerDetails)
+		conn.Write([]byte("___________________________________________________\n"))
+		conn.Write([]byte("*************Welcome to bull-cow game**************\n"))
+		conn.Write([]byte("___________________________________________________\n"))
 	}
 	player1 := &gameDetails.Players[0]
 	player2 := &gameDetails.Players[1]
 	gameDetails.secretNo = SectNumGenrator()
+	fmt.Println(gameDetails.secretNo)
 	var wg sync.WaitGroup
 	wg.Add(2)
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"net"
@@ -20,7 +21,20 @@ func main() {
 		fmt.Print(err)
 		return
 	}
-
 	defer conn.Close()
-	copy(os.Stdout, conn)
+	go copy(os.Stdout, conn)
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		text, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("Input error:", err)
+			return
+		}
+
+		_, err = conn.Write([]byte(text))
+		if err != nil {
+			fmt.Println("Connection closed:", err)
+			return
+		}
+	}
 }
