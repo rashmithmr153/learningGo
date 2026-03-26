@@ -57,7 +57,7 @@ func validGuess(guess string) bool {
 
 	for i := range guess {
 		if guess[i] < '0' || guess[i] > '9' {
-			return false
+			return false 
 		}
 
 		if seen[guess[i]] {
@@ -90,10 +90,9 @@ func handlePlayer(game *Game, player *Player) {
 		}
 		guess = strings.TrimSpace(guess)
 		if !validGuess(guess) {
-			conec.Write([]byte("Enter valid guess"))
+			conec.Write([]byte("Enter valid guess\n"))
 			continue
 		}
-
 		game.lock.Lock()
 		player.guessCount += 1
 		bulls, cows := calcBullCows(game.secretNo, guess)
